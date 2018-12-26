@@ -2,8 +2,8 @@
 Детектор объектов и лиц
 
 Может обнаруживать классы, указанные в CocoClassNames.json
-Используется python 3
 
+Используется python 3
 
 # Run locally without server
 
