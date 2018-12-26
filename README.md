@@ -1,14 +1,14 @@
 # flask_object_detector_cocossd_py
 Детектор объектов и лиц
-```
+
 Может обнаруживать классы, указанные в CocoClassNames.json
 Используется python 3
-```
+
 
 # Run locally without server
-```
+
 Чтобы не было конфликтов версий библиотек, можно создать виртуальное окружение. В python для этого можно использовать venv в python или virtualenvwrapper. https://python-scripts.com/virtualenv
-```
+
 Для запуска проекта без сервера используются следующие команды:
 ```
  cd flask_object_detector_cocossd_py/object_detector_cocossd_py
