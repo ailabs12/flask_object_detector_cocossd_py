@@ -3,26 +3,30 @@ MAINTAINER "Konstantin Bakhtin"
 
 RUN apt-get update -y
 RUN apt-get install -y python3-pip python3-dev build-essential
-
-#ADD app.py /app
-#ADD CocoClassNames.json /app
-#ADD Dockerfile /app
-#ADD requirements.txt /app
-#RUN mkdir /app/object_detector_cocossd_py
-#ADD ./object_detector_cocossd_py/ /app/object_detector_cocossd_py
-#COPY ./object_detector_cocossd_py/ /app/object_detector_cocossd_py
+RUN apt-get install libglib2.0-0 -y
+RUN apt-get install libsm6 libxrender1 libfontconfig1 -y
+RUN apt-get install libxext6 libgl1-mesa-glx -y
 
 COPY . /app
 
 WORKDIR /app
 
-#RUN source venv/bin/activate
-#RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade pip
 
 RUN pip3 install -r requirements.txt
 
-# ports
-# EXPOSE 8888 6006 # docker run -p 8888:8888 -p 6006:6006
+RUN chmod +x /app/boot.sh
 
-CMD ["flask","run","--port=5000"]
+RUN apt-get install wget -y
+RUN chmod +x /app/object_detector_cocossd_py/install-script.sh
+RUN /bin/bash -c "/app/object_detector_cocossd_py/install-script.sh"
+
+EXPOSE 3000
+
+ENV FLASK_APP app.py
+
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
+CMD ["/bin/bash", "./boot.sh"]
 

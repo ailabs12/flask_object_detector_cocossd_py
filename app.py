@@ -1,7 +1,3 @@
-'''
-Создаёт новый экземпляр приложения Flask(можно создать в основном модуле или в __init__.py файле проекта) 
-и определяет один маршрут, который возвращает оператор "Hello World!"
-'''
 from flask import Flask, json, request
 from copy import deepcopy
 
