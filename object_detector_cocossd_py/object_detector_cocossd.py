@@ -65,6 +65,11 @@ def classifyImg(imageBase64):
 	imageBase64 = imageBase64.replace('data:image/jpeg;base64','')
 	imageBase64 = imageBase64.replace('data:image/png;base64','')
 
+	###from PIL import Image
+	#area = (result[c][i][2], result[c][i][3], result[c][i][4], result[c][i][5])
+	#cropped_image = image.crop(area)
+	#cropped_image.save(outputBuffer, format='JPEG')
+
 	imageBase64 = base64.b64decode(imageBase64) #bytes
 
 	nparr = np.fromstring(imageBase64, np.uint8) #(bytes --> numpy.ndarray)

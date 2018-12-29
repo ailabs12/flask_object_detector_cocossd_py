@@ -17,6 +17,7 @@ def detectorCocossd():
 
 	img_b64 = get_request_data(request) #(string img_b64) (tuple get_request_data(request))
 	###img_b64, _ = get_request_data(request) #(string img_b64) (tuple get_request_data(request))
+	img_header = get_image_header(img_b64)
 	img_body = get_image_body(img_b64)
 
 	if (img_body is None):
@@ -29,7 +30,7 @@ def detectorCocossd():
 		return json.jsonify(get_json_response())
 
 	print(prediction_result)
-	return json.jsonify(get_json_response(result=prediction_result,classes=classes)) #<class 'flask.wrappers.Response'> #<Response(ответ) 164 bytes [200 OK]>
+	return json.jsonify(get_json_response(result=prediction_result,img_header=img_header,classes=classes)) #<class 'flask.wrappers.Response'> #<Response(ответ) 164 bytes [200 OK]>
 
 
 def is_valid_request(request):
@@ -48,7 +49,14 @@ def get_image_body(img_b64):
     else:
         return None
 
-def get_json_response(result=None, msg=None, classes=None):
+def get_image_header(img_b64):
+	if 'data:image' in img_b64:
+		#data:image/jpeg;base64,
+		return img_b64.split(',')[0] + ','
+	else:
+		return None
+
+def get_json_response(result=None, msg=None, img_header=None, classes=None):
 	json = {
 		'success': False
 	}
@@ -62,28 +70,25 @@ def get_json_response(result=None, msg=None, classes=None):
 	if result is None:
 		return json
 
-	'''import re
-
-	listClasses = []
-	if classes != None:
-		listClasses = re.findall(r'[A-Za-zА-Яа-я]+', classes)
-		print('listClasses')
-		print(listClasses)'''
-
 
 	d = {}
 	for c in range(len(result)):
 		for i in range(len(result[c])):
 			if (classes is None) or (not classes) or (result[c][i][0] in classes):
+
+				'''unchanged_image = cv2.imdecode(np.fromstring(image_body,np.uint8), cv2.IMREAD_UNCHANGED)
+				img = cv2.cvtColor(unchanged_image, cv2.COLOR_BGR2RGB)
+				img = cv2.resize(img, (img_width, img_height))
+				x = image.img_to_array(img)'''
+
 				d = {
 					'class': str(result[c][i][0]),
 					'confidence': str(result[c][i][1]),
-					'points': {
-						'x0': str(result[c][i][2]),
-						'y0': str(result[c][i][3]),
-						'x1': str(result[c][i][4]),
-						'y1': str(result[c][i][5])
-					}
+					'h': str(result[c][i][5] - result[c][i][3]),
+					'w': str(result[c][i][4] - result[c][i][2]),
+					'x': str(result[c][i][2]),
+					'y': str(result[c][i][3]),
+					'image': str(img_header)# + img_body)
 				}
 				json['data'].append(deepcopy(d))
 

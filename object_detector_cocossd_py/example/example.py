@@ -15,6 +15,6 @@ with open("image3.jpg", "rb") as image_file:
 	base64data = "".join(map(chr, base64data))
 #-----------------------------------------------------------------
 
-print(classifyImg(base64data)[0]) #Объекты
+#print(classifyImg(base64data)[0]) #Объекты
 
 print(classifyImg(base64data)[1]) #Лица
