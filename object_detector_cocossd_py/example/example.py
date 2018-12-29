@@ -17,4 +17,23 @@ with open("image3.jpg", "rb") as image_file:
 
 #print(classifyImg(base64data)[0]) #Объекты
 
-print(classifyImg(base64data)[1]) #Лица
+#print(classifyImg(base64data)[1]) #Лица
+
+result = classifyImg(base64data)
+
+output = []
+
+d = {}
+for c in range(len(result)):
+	for i in range(len(result[c])):
+		d = {
+			'class': str(result[c][i][0]),
+			'confidence': str(result[c][i][1]),
+			'h': str(result[c][i][5] - result[c][i][3]),
+			'w': str(result[c][i][4] - result[c][i][2]),
+			'x': str(result[c][i][2]),
+			'y': str(result[c][i][3])
+		}
+		output.append(d)
+
+print(output)

@@ -24,12 +24,11 @@ def detectorCocossd():
 		return json.jsonify(get_json_response(msg='Image not found'))
 
 	prediction_result = classifyImg(img_b64) #list
-	print(prediction_result)
 
 	if (prediction_result == ([],[])):
 		return json.jsonify(get_json_response())
 
-	print(prediction_result)
+	#print(prediction_result)
 	return json.jsonify(get_json_response(result=prediction_result,img_header=img_header,classes=classes)) #<class 'flask.wrappers.Response'> #<Response(ответ) 164 bytes [200 OK]>
 
 
@@ -75,12 +74,6 @@ def get_json_response(result=None, msg=None, img_header=None, classes=None):
 	for c in range(len(result)):
 		for i in range(len(result[c])):
 			if (classes is None) or (not classes) or (result[c][i][0] in classes):
-
-				'''unchanged_image = cv2.imdecode(np.fromstring(image_body,np.uint8), cv2.IMREAD_UNCHANGED)
-				img = cv2.cvtColor(unchanged_image, cv2.COLOR_BGR2RGB)
-				img = cv2.resize(img, (img_width, img_height))
-				x = image.img_to_array(img)'''
-
 				d = {
 					'class': str(result[c][i][0]),
 					'confidence': str(result[c][i][1]),
@@ -88,7 +81,7 @@ def get_json_response(result=None, msg=None, img_header=None, classes=None):
 					'w': str(result[c][i][4] - result[c][i][2]),
 					'x': str(result[c][i][2]),
 					'y': str(result[c][i][3]),
-					'image': str(img_header)# + img_body)
+					'image': str(img_header + result[c][i][6])
 				}
 				json['data'].append(deepcopy(d))
 
