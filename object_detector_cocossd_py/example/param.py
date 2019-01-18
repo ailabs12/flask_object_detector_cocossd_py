@@ -2,6 +2,16 @@ import sys
 import cv2
 import base64
 
+import json
+path = 'CocoClassNames.json'
+
+try:
+	with open(path, 'r') as f:
+		data = json.load(f)
+except:
+	print('ERROR! Could not read file CocoClassNames.json')
+	raise
+
 #import time #Для замера времени выполнения
 #start_time = time.time() #Для замера времени выполнения
 
@@ -21,10 +31,11 @@ with open("image3.jpg", "rb") as image_file:
 #print(classifyImg(base64data)[0][0]) #Первый объект списка
 
 sys.path.append('../') #Поднимаемся на уровень выше, так как там находится модуль детекции объектов и лиц (в файле object_detector_cocossd.py)
-from object_detector_cocossd import classifyImg #Подгружаем модуль детекции
+from object_detector_cocossd import classifyImg #Подгружаем модуль детекции для объектов
+from object_detector_cocossd import detectFaces #Подгружаем модуль детекции для лиц
 
-Obj = classifyImg(base64data)[0] #Объекты
-Fcs = classifyImg(base64data)[1] #Лица
+Obj = classifyImg(base64data) #Объекты
+Fcs = detectFaces(base64data) #Лица
 
 import argparse
  
@@ -49,15 +60,32 @@ for className in namespace.className: #Перебор значений из вх
 		if className not in UniqValue:    #Выбор уникальных значений из входных аргументов
 				UniqValue.append(className)
 
+d = {}
 for i in range(len(Obj)):
 	for className in UniqValue: #Перебор значений из входных аргументов
-		if Obj[i][0] == className: #Поиск объектов по классам, которые заданы в входных аргументах
-			Output.append(Obj[i])
+		if data[str(Obj[i][0])]['Rus'] == className or data[str(Obj[i][0])]['Eng'] == className: #Поиск объектов по классам, которые заданы в входных аргументах
+			d = {
+				'class': data[str(Obj[i][0])]['Rus'], #['Eng'] for English mode
+				'confidence': str(Obj[i][1]),
+				'h': str(Obj[i][5] - Obj[i][3]),
+				'w': str(Obj[i][4] - Obj[i][2]),
+				'x': str(Obj[i][2]),
+				'y': str(Obj[i][3])
+			}
+			Output.append(d)
 
 for i in range(len(Fcs)):
 	for className in UniqValue: #Перебор значений из входных аргументов
-		if Fcs[i][0] == className: #Поиск лица, если он задан в входных аргументах
-			Output.append(Fcs[i])
+		if data[str(Fcs[i][0])]['Rus'] == className or data[str(Fcs[i][0])]['Eng'] == className: #Поиск лица, если он задан в входных аргументах
+			d = {
+				'class': data[str(Fcs[i][0])]['Rus'], #['Eng'] for English mode
+				'confidence': str(Fcs[i][1]),
+				'h': str(Fcs[i][5] - Fcs[i][3]),
+				'w': str(Fcs[i][4] - Fcs[i][2]),
+				'x': str(Fcs[i][2]),
+				'y': str(Fcs[i][3])
+			}
+			Output.append(d)
 
 #count = time.time() - start_time #Для замера времени выполнения
 #print('%s'%count) #Для замера времени выполнения

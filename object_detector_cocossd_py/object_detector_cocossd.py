@@ -31,13 +31,27 @@ def cutImage(img, area):
 
 #Функция обнаружения лиц
 #Принимает флаг(присутствие/отсутствие людей на картинке), картинку Mat и эту же картинку Mat 300x300
-def detectFaces(SendToFaces, img, imgResized):
+def detectFaces(imageBase64): #SendToFaces, img, imgResized
 
 	#Список для записи найденных лиц
-	resultsFaces = []
+	Faces = []
 
-	if not SendToFaces: 
-		return resultsFaces
+	if not imageBase64:
+		print('Do specify an image in base64 format')
+		raise SystemExit(1)
+
+	imageBase64 = imageBase64.replace('data:image/jpeg;base64','')
+	imageBase64 = imageBase64.replace('data:image/png;base64','')
+
+	imageBase64 = base64.b64decode(imageBase64) #bytes
+
+	nparr = np.fromstring(imageBase64, np.uint8) #(bytes --> numpy.ndarray)
+	img = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED) #numpy.ndarray
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #Удалишь это, и все люди станут смурфиками
+	#cv2.imwrite("test.jpg", img) #Для тестирования корректности преобразования в массив numpy.ndarray(выше)
+
+	#SSDCOCO MODEL работает с изображением 300 x 300
+	imgResized = cv2.resize(img, (300, 300)) #numpy.ndarray
 
 	#Сеть принимает изображение blob на вход
 	inputBlob = cv2.dnn.blobFromImage(imgResized) #numpy.ndarray
@@ -50,7 +64,7 @@ def detectFaces(SendToFaces, img, imgResized):
 		confidence = outputBlob[0, 0, i, 2]
 		#Определяет минимальный доверительный порог для вывода лиц
 		if confidence > confidence_faces:
-			className = data[str(81)]['Rus'] #['Eng'] for English mode
+			className = int(81) #data[str(81)]['Rus'] #['Eng'] for English mode 
 
 			xLeftTop = int(outputBlob[0, 0, i, 3] * img.shape[1])
 			yLeftTop = int(outputBlob[0, 0, i, 4] * img.shape[0])
@@ -62,13 +76,13 @@ def detectFaces(SendToFaces, img, imgResized):
 			base64_data = cutImage(img, area)
 
 			#Добавление записи в список найденных лиц
-			resultsFaces.append([className, confidence, xLeftTop, yLeftTop, xRightBottom, yRightBottom, base64_data])
+			Faces.append([className, confidence, xLeftTop, yLeftTop, xRightBottom, yRightBottom, base64_data])
 
 	#Раскомментировать для отрисовки (прямоугольником) границ лица
 	#cv2.rectangle(img, (xLeftBottom, yLeftBottom), (xRightTop, yRightTop), (255, 0, 0), 3)
 
 	#Все найденные лица в виде списка			
-	return resultsFaces
+	return Faces
 
 
 #Функция обнаружения объектов
@@ -98,9 +112,6 @@ def classifyImg(imageBase64):
 	#Пропустить через нейронную сеть
 	outputBlob = net.forward()
 
-	#Переменная для проверки необходимости детекции лиц 
-	SendToFaces = False
-
 	#print(img.shape)
 
 	#Список для записи найденных объектов
@@ -110,11 +121,8 @@ def classifyImg(imageBase64):
 		#Определяет минимальный доверительный порог для вывода объектов 
 		confidence = outputBlob[0, 0, i, 2]
 		if confidence > confidence_objects:
-			#class_id = int(outputBlob[0, 0, i, 1]) # Class label
-			className = data[str(int(outputBlob[0, 0, i, 1]))]['Rus'] #['Eng'] for English mode
-			if not SendToFaces:
-				if (className == "person" or className == "человек"):
-					SendToFaces = True
+			className = int(outputBlob[0, 0, i, 1]) # Class label
+			#className = data[str(int(outputBlob[0, 0, i, 1]))]['Rus'] #['Eng'] for English mode
 
 			xLeftTop = int(outputBlob[0, 0, i, 3] * img.shape[1])
 			yLeftTop = int(outputBlob[0, 0, i, 4] * img.shape[0])
@@ -136,9 +144,6 @@ def classifyImg(imageBase64):
 			#Раскомментировать для отрисовки (прямоугольником) границ объекта
 			#cv2.rectangle(img, (xLeftBottom, yLeftBottom), (xRightTop, yRightTop), (0, 255, 0), 3)
 
-	#Вызываем функцию обнаружения лиц и возвращаем все найденные лица в виде списка
-	Faces = detectFaces(SendToFaces, img, imgResized)
-
 	#Раскомментировать для наглядного представления отрисовки
 	#cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 	#cv2.imshow("img", img)
@@ -146,5 +151,5 @@ def classifyImg(imageBase64):
 	#cv2.destroyAllWindows()
 
 	#Все найденные объекты и лица в виде списков
-	return Objects, Faces
+	return Objects
 

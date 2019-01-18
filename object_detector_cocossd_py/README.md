@@ -13,13 +13,13 @@
 
 С параметрами(фильтрует вывод по заданным параметрам):
 
->python3 param.py человек лицо
+>python3 param.py человек face
 
 ## Использование:
 
-classifyImg(base64 код изображения)[0] #Объекты
+classifyImg(base64 код изображения) #Объекты
 
-classifyImg(base64 код изображения)[1] #Лица
+detectFaces(base64 код изображения) #Лица
 
 ## В файле object_detector_cocossd.py.
 confidence_objects = 0.5 #минимальный доверительный порог для вывода объектов
