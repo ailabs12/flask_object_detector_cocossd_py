@@ -30,7 +30,7 @@ app = Flask(__name__)
 @app.route("/", methods=['POST'])
 def detectorCocossd():
 	if (not is_valid_request(request)):
-		return json.jsonify(get_json_response(msg='Invalid request'))
+		return json.jsonify(get_json_response(msg='Invalid request! Field \'image\' not found'))
 
 	#Получаем запрошенные классы или None, если параметр 'classes' не получен
 	classes = request.json.get('classes', None)
