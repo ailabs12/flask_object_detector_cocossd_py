@@ -127,8 +127,8 @@ def detectorCocossd():
 
 def is_valid_request(request):
 	try:
-		json_object = json.loads(request.json)
-	except: #ValueError, e:
+		request.get_json(force=True)
+	except: # TypeError:
 		return False
 	return 'image' in request.json
 
